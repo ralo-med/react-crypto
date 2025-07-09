@@ -52,14 +52,46 @@ const ChangeValue = styled.div<{ $isPositive: boolean }>`
 
 function Price() {
   const { coinId } = useParams();
-  const { isLoading, data } = useQuery({
+  const { isLoading, data, error } = useQuery({
     queryKey: ["price", coinId],
     queryFn: () => fetchCoinPrice(coinId!),
   });
 
   if (isLoading) return <div>Loading price...</div>;
 
-  const priceData = data?.quotes.USD;
+  if (error || !data) {
+    return (
+      <Container>
+        <div
+          style={{
+            textAlign: "center",
+            padding: "40px 20px",
+            color: "#e74c3c",
+          }}
+        >
+          가격 데이터를 불러올 수 없습니다.
+        </div>
+      </Container>
+    );
+  }
+
+  const priceData = data?.quotes?.USD;
+
+  if (!priceData) {
+    return (
+      <Container>
+        <div
+          style={{
+            textAlign: "center",
+            padding: "40px 20px",
+            color: "#e74c3c",
+          }}
+        >
+          USD 가격 데이터가 없습니다.
+        </div>
+      </Container>
+    );
+  }
 
   return (
     <Container>
