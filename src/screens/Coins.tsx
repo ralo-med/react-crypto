@@ -48,6 +48,11 @@ const Loader = styled.span`
 interface Coin {
   id: string;
   name: string;
+  symbol: string;
+  rank: number;
+  is_new: boolean;
+  is_active: boolean;
+  type: string;
 }
 
 function Coins() {
@@ -57,7 +62,7 @@ function Coins() {
     (async () => {
       const response = await fetch("https://api.coinpaprika.com/v1/coins");
       const json = await response.json();
-      setCoins(json.slice(0, 3));
+      setCoins(json.slice(0, 100));
       setLoading(false);
     })();
   }, []);
