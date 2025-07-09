@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
 import { useParams, Link, Outlet, useMatch } from "react-router-dom";
 import styled from "styled-components";
+import { fetchCoinInfo, fetchCoinPrice } from "../api";
+import { useQuery } from "@tanstack/react-query";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -62,7 +63,7 @@ const Description = styled.p`
   text-align: justify;
 `;
 
-interface InfoData {
+export interface InfoData {
   id: string;
   name: string;
   symbol: string;
@@ -84,7 +85,7 @@ interface InfoData {
   last_data_at: string;
 }
 
-interface PriceData {
+export interface PriceData {
   id: string;
   name: string;
   symbol: string;
@@ -148,59 +149,50 @@ const Tab = styled.span<{ isActive: boolean }>`
 `;
 
 function Coin() {
-  const [loading, setLoading] = useState(true);
   const { coinId } = useParams();
-  const [info, setInfo] = useState<InfoData>();
-  const [price, setPrice] = useState<PriceData>();
   const priceMatch = useMatch("/:coinId/price");
   const chartMatch = useMatch("/:coinId/chart");
-  useEffect(() => {
-    (async () => {
-      const infoData = await (
-        await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)
-      ).json();
-      console.log(infoData);
-      const priceData = await (
-        await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
-      ).json();
-      console.log(priceData);
-      setInfo(infoData);
-      setPrice(priceData);
-      setLoading(false);
-    })();
-  }, [coinId]);
+  const { isLoading: infoLoading, data: infoData } = useQuery<InfoData>({
+    queryKey: ["info", coinId],
+    queryFn: () => fetchCoinInfo(coinId as string),
+  });
+  const { isLoading: priceLoading, data: priceData } = useQuery<PriceData>({
+    queryKey: ["price", coinId],
+    queryFn: () => fetchCoinPrice(coinId as string),
+  });
+
   return (
     <Container>
       <Header>
-        <Title>{info?.name || coinId}</Title>
+        <Title>{infoData?.name || coinId}</Title>
       </Header>
-      {loading ? (
+      {infoLoading || priceLoading ? (
         <Loader>Loading...</Loader>
       ) : (
         <>
           <Overview>
             <OverviewItem>
               <span>Rank:</span>
-              <span>{info?.rank}</span>
+              <span>{infoData?.rank}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Symbol:</span>
-              <span>{info?.symbol}</span>
+              <span>{infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Price:</span>
-              <span>${price?.quotes.USD.price.toFixed(2)}</span>
+              <span>${priceData?.quotes.USD.price.toFixed(2)}</span>
             </OverviewItem>
           </Overview>
-          <Description>{info?.description}</Description>
+          <Description>{infoData?.description}</Description>
           <Overview>
             <OverviewItem>
               <span>Total Supply:</span>
-              <span>{price?.total_supply.toLocaleString()}</span>
+              <span>{priceData?.total_supply.toLocaleString()}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Max Supply:</span>
-              <span>{price?.max_supply.toLocaleString()}</span>
+              <span>{priceData?.max_supply.toLocaleString()}</span>
             </OverviewItem>
           </Overview>
           <Tabs>

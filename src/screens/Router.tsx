@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import Root from "../Root";
 import NotFound from "./NotFound";
-
 import Coins from "./Coins";
 import Coin from "./Coin";
 import Price from "./Price";

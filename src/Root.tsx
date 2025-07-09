@@ -1,6 +1,7 @@
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 import { Outlet } from "react-router-dom";
 import { theme } from "./theme";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -53,6 +54,7 @@ function Root() {
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       <Outlet />
+      <ReactQueryDevtools initialIsOpen={true} />
     </ThemeProvider>
   );
 }
