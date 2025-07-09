@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { useContext } from "react";
+import { ThemeContext } from "../contexts/ThemeContext.ts";
 
 export function useTheme() {
-  const [isDarkMode, setIsDarkMode] = useState(false); // 기본값을 라이트모드로 변경
-
-  const toggleTheme = () => {
-    setIsDarkMode((prev) => !prev);
-  };
-
-  return { isDarkMode, toggleTheme };
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error("useTheme must be used within a ThemeProvider");
+  }
+  return context;
 }
