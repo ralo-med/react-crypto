@@ -8,7 +8,9 @@ function User() {
       User {id} {users.find((user) => user.id === Number(id))?.name}
       <hr />
       <Link to="followers">Followers</Link>
-      <Outlet />
+      <Outlet
+        context={{ name: users.find((user) => user.id === Number(id))?.name }}
+      />
     </div>
   );
 }
