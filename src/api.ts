@@ -17,5 +17,15 @@ export function fetchCoinHistory(coinId: string) {
   const startDate = endDate - 60 * 60 * 24 * 7 * 2;
   return fetch(
     `https://ohlcv-api.nomadcoders.workers.dev?coinId=${coinId}&start=${startDate}&end=${endDate}`
-  ).then((res) => res.json());
+  )
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res.json();
+    })
+    .catch((error) => {
+      console.error(`Error fetching chart data for ${coinId}:`, error);
+      throw error;
+    });
 }

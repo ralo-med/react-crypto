@@ -32,16 +32,40 @@ const Img = styled.img`
   width: 35px;
   height: 35px;
   margin-right: 10px;
+  border-radius: 50%;
+`;
+
+const FallbackIcon = styled.div`
+  width: 35px;
+  height: 35px;
+  margin-right: 10px;
+  border-radius: 50%;
+  background-color: #666;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
 `;
 
 const Coin = styled.li`
   font-size: 18px;
   font-weight: 600;
-  background-color: white;
-  color: ${(props) => props.theme.colors.bgColor};
+  background-color: ${(props) =>
+    props.theme.colors.bgColor === "#f8f9fa"
+      ? "rgba(0, 0, 0, 0.05)"
+      : "rgba(255, 255, 255, 0.1)"};
+  color: ${(props) => props.theme.colors.text};
   margin-bottom: 10px;
   border-radius: 15px;
   width: 100%;
+  border: 1px solid
+    ${(props) =>
+      props.theme.colors.bgColor === "#f8f9fa"
+        ? "rgba(0, 0, 0, 0.1)"
+        : "rgba(255, 255, 255, 0.2)"};
+  transition: all 0.2s ease;
 
   a {
     padding: 20px;
@@ -50,13 +74,24 @@ const Coin = styled.li`
     transition: color 0.2s ease-in;
   }
   &:hover {
-    color: ${(props) => props.theme.colors.accentColor};
+    background-color: ${(props) =>
+      props.theme.colors.bgColor === "#f8f9fa"
+        ? "rgba(0, 0, 0, 0.1)"
+        : "rgba(255, 255, 255, 0.2)"};
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
 `;
 
-const Loader = styled.span`
+const Loader = styled.div`
   text-align: center;
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  font-size: 48px;
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.text};
 `;
 
 interface Coin {
@@ -90,7 +125,16 @@ function Coins() {
               <Img
                 src={`https://cryptoicon-api.pages.dev/api/icon/${coin.symbol.toLowerCase()}`}
                 alt={coin.symbol}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "none";
+                  const fallback = target.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = "flex";
+                }}
               />
+              <FallbackIcon style={{ display: "none" }}>
+                {coin.symbol.charAt(0).toUpperCase()}
+              </FallbackIcon>
               {coin.name} &rarr;
             </Link>
           </Coin>

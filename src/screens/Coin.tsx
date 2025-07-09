@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { fetchCoinInfo, fetchCoinPrice } from "../api";
 import { useQuery } from "@tanstack/react-query";
 import { Helmet } from "react-helmet";
+import { useState } from "react";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -22,17 +23,20 @@ const Title = styled.h1`
   color: ${(props) => props.theme.colors.accentColor};
 `;
 
-const Loader = styled.span`
-  text-align: center;
-  display: block;
-`;
-
 const Overview = styled.div`
   display: flex;
   justify-content: space-between;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: ${(props) =>
+    props.theme.colors.bgColor === "#f8f9fa"
+      ? "rgba(0, 0, 0, 0.1)"
+      : "rgba(0, 0, 0, 0.5)"};
   padding: 10px 20px;
   border-radius: 10px;
+  border: 1px solid
+    ${(props) =>
+      props.theme.colors.bgColor === "#f8f9fa"
+        ? "rgba(0, 0, 0, 0.1)"
+        : "rgba(255, 255, 255, 0.1)"};
 `;
 
 const OverviewItem = styled.div`
@@ -55,13 +59,41 @@ const OverviewItem = styled.div`
   }
 `;
 
-const Description = styled.p`
+const DescriptionContainer = styled.div`
   margin: 20px 0px;
+`;
+
+const DescriptionText = styled.p<{ $isExpanded: boolean }>`
   line-height: 1.8;
   font-size: 16px;
   font-weight: 500;
   color: ${(props) => props.theme.colors.text};
   text-align: justify;
+  margin: 0;
+  ${(props) =>
+    !props.$isExpanded &&
+    `
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  `}
+`;
+
+const ReadMoreButton = styled.button`
+  background: none;
+  border: none;
+  color: ${(props) => props.theme.colors.accentColor};
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  padding: 5px 0;
+  text-decoration: underline;
+
+  &:hover {
+    opacity: 0.8;
+  }
 `;
 
 export interface InfoData {
@@ -126,16 +158,18 @@ const Tabs = styled.div`
   gap: 10px;
 `;
 
-const Tab = styled.span<{ isActive: boolean }>`
+const Tab = styled.span<{ $isActive: boolean }>`
   text-align: center;
   text-transform: uppercase;
   font-size: 12px;
   font-weight: 400;
-  background-color: rgba(0, 0, 0, 0.5);
-  
+  background-color: ${(props) =>
+    props.theme.colors.bgColor === "#f8f9fa"
+      ? "rgba(0, 0, 0, 0.1)"
+      : "rgba(0, 0, 0, 0.5)"};
   border-radius: 10px;
   color: ${(props) =>
-    props.isActive ? props.theme.colors.accentColor : props.theme.colors.text};
+    props.$isActive ? props.theme.colors.accentColor : props.theme.colors.text};
   a {
     display: block;
     transition: color 0.2s ease-in;
@@ -146,13 +180,23 @@ const Tab = styled.span<{ isActive: boolean }>`
   &:hover {
     color: ${(props) => props.theme.colors.accentColor};
   }
-  }
+`;
+
+const Separator = styled.div`
+  height: 1px;
+  background-color: ${(props) =>
+    props.theme.colors.bgColor === "#f8f9fa"
+      ? "rgba(0, 0, 0, 0.2)"
+      : "rgba(255, 255, 255, 0.2)"};
+  margin: 20px 0px;
 `;
 
 function Coin() {
   const { coinId } = useParams();
   const priceMatch = useMatch("/:coinId/price");
   const chartMatch = useMatch("/:coinId/chart");
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+
   const { isLoading: infoLoading, data: infoData } = useQuery<InfoData>({
     queryKey: ["info", coinId],
     queryFn: () => fetchCoinInfo(coinId as string),
@@ -162,17 +206,19 @@ function Coin() {
     queryFn: () => fetchCoinPrice(coinId as string),
   });
 
+  const toggleDescription = () => {
+    setIsDescriptionExpanded(!isDescriptionExpanded);
+  };
+
   return (
     <Container>
       <Helmet>
         <title>{infoData?.name || coinId}</title>
       </Helmet>
       <Header>
-        <Title>{infoData?.name || coinId}</Title>
+        <Title>{infoData?.name || "Loading..."}</Title>
       </Header>
-      {infoLoading || priceLoading ? (
-        <Loader>Loading...</Loader>
-      ) : (
+      {infoLoading || priceLoading ? null : (
         <>
           <Overview>
             <OverviewItem>
@@ -188,7 +234,16 @@ function Coin() {
               <span>${priceData?.quotes.USD.price.toFixed(2)}</span>
             </OverviewItem>
           </Overview>
-          <Description>{infoData?.description}</Description>
+          <DescriptionContainer>
+            <DescriptionText $isExpanded={isDescriptionExpanded}>
+              {infoData?.description}
+            </DescriptionText>
+            {infoData?.description && infoData.description.length > 200 && (
+              <ReadMoreButton onClick={toggleDescription}>
+                {isDescriptionExpanded ? "Read less" : "Read more"}
+              </ReadMoreButton>
+            )}
+          </DescriptionContainer>
           <Overview>
             <OverviewItem>
               <span>Total Supply:</span>
@@ -200,13 +255,14 @@ function Coin() {
             </OverviewItem>
           </Overview>
           <Tabs>
-            <Tab isActive={priceMatch !== null}>
+            <Tab $isActive={priceMatch !== null}>
               <Link to={`price`}>Price</Link>
             </Tab>
-            <Tab isActive={chartMatch !== null}>
+            <Tab $isActive={chartMatch !== null}>
               <Link to={`chart`}>Chart</Link>
             </Tab>
           </Tabs>
+          <Separator />
           <Outlet />
         </>
       )}

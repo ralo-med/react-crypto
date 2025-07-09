@@ -1,7 +1,9 @@
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 import { Outlet } from "react-router-dom";
-import { theme } from "./theme";
+import { lightTheme, darkTheme } from "./theme";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { useTheme } from "./hooks/useTheme";
+import Navigation from "./components/Navigation";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -50,9 +52,13 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 function Root() {
+  const { isDarkMode, toggleTheme } = useTheme();
+  const currentTheme = isDarkMode ? darkTheme : lightTheme;
+
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={currentTheme}>
       <GlobalStyle />
+      <Navigation isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
       <Outlet />
       <ReactQueryDevtools initialIsOpen={true} />
     </ThemeProvider>
