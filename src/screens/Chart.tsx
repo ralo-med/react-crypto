@@ -67,6 +67,12 @@ function Chart() {
                 formatter: (value) => `$${value.toFixed(2)}`,
               },
             },
+            fill: {
+              type: "gradient",
+              gradient: {
+                gradientToColors: ["#0be881"],
+              },
+            },
           }}
         />
       )}

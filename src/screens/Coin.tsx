@@ -2,6 +2,7 @@ import { useParams, Link, Outlet, useMatch } from "react-router-dom";
 import styled from "styled-components";
 import { fetchCoinInfo, fetchCoinPrice } from "../api";
 import { useQuery } from "@tanstack/react-query";
+import { Helmet } from "react-helmet";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -163,6 +164,9 @@ function Coin() {
 
   return (
     <Container>
+      <Helmet>
+        <title>{infoData?.name || coinId}</title>
+      </Helmet>
       <Header>
         <Title>{infoData?.name || coinId}</Title>
       </Header>
