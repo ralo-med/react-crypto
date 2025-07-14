@@ -1,10 +1,12 @@
-import { useContext } from "react";
-import { ThemeContext } from "../contexts/ThemeContext.ts";
+import { useAtom } from "jotai";
+import { isDarkModeAtom, toggleThemeAtom } from "../stores/themeStore";
 
 export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error("useTheme must be used within a ThemeProvider");
-  }
-  return context;
+  const [isDarkMode] = useAtom(isDarkModeAtom);
+  const [, toggleTheme] = useAtom(toggleThemeAtom);
+
+  return {
+    isDarkMode,
+    toggleTheme,
+  };
 }
