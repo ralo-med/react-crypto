@@ -1,9 +1,9 @@
-import { useAtom } from "jotai";
-import { isDarkModeAtom, toggleThemeAtom } from "../stores/themeStore";
+import { useAtomValue, useSetAtom } from "jotai";
+import { darkModeAtom, toggleDarkModeAtom } from "../stores/themeStore";
 
 export function useTheme() {
-  const [isDarkMode] = useAtom(isDarkModeAtom);
-  const [, toggleTheme] = useAtom(toggleThemeAtom);
+  const isDarkMode = useAtomValue(darkModeAtom);
+  const toggleTheme = useSetAtom(toggleDarkModeAtom);
 
   return {
     isDarkMode,
